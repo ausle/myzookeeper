@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+		
+
+
+
+	<bean id="retryPolicy" class="org.apache.curator.retry.RetryNTimes">
+		<!--重试的次数-->
+		<constructor-arg name="n" value="10"/>
+		<!--重试的时间-->
+		<constructor-arg name="sleepMsBetweenRetries" value="5000"/>
+	</bean>
+
+
+	<!--创建连接zk服务端的客户端-->
+	<bean id="zkClient" class="org.apache.curator.framework.CuratorFrameworkFactory"
+		  factory-method="newClient" init-method="start">
+		<!--连接超时时间-->
+		<constructor-arg name="connectionTimeoutMs" value="5000"/>
+		<constructor-arg name="connectString" value="192.168.98.130:2181"/>
+		<constructor-arg name="retryPolicy" ref="retryPolicy"/>
+		<constructor-arg name="sessionTimeoutMs" value="10000"/>
+	</bean>
+
+	<!---->
+	<bean id="zkCurator" class="com.asule.curator.ZKCurator" init-method="init">
+		<constructor-arg name="client" ref="zkClient"/>
+	</bean>
+
+
+	<bean id="distributedLock" class="com.asule.curator.DistributedLock" init-method="init">
+		<constructor-arg name="client" ref="zkClient"/>
+	</bean>
+
+
+
+
+
+</beans>
